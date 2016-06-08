@@ -1,27 +1,118 @@
-
 <html>
 <head>
 	<link rel='stylesheet' href='http://cdn.leafletjs.com/leaflet-0.6/leaflet.css' />
 	<script src='http://cdn.leafletjs.com/leaflet-0.6/leaflet.js' type='text/javascript'></script>
+
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+
+	<script src="jquery-2.2.4.min.js"></script>   
+
+
 	<style type="text/css">
 		html, body {height: 100%;overflow: hidden;}
 		#map {height: 100%;}
+		
+		.info {
+		    padding: 6px 8px;
+		    font: 14px/16px Arial, Helvetica, sans-serif;
+		    background: white;
+		    background: rgba(255,255,255,0.8);
+		    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+		    border-radius: 5px;
+		}
+		.info h4 {
+		    margin: 0 0 5px;
+		    color: #777;
+		}
 	</style>
 </head>
 <body>
 	<div id="map"></div>
 	<script>
 	var map = new L.Map('map', {
-		center: [33.74, -84.39],
-		zoom: 10
+		center: [33.78, -84.39],
+		zoom: 9
 	});
-	
+
+	map.options.maxZoom = 16;
+	map.options.minZoom = 9;
+
 	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 		attribution: '',
 		opacity:.4,
 	}).addTo(map);
 	
 	L.tileLayer('http://census.sparkgeo.com/{z}/{x}/{y}.png').addTo(map);
+
+    function getColor(d) {
+    return d > 20000 ? '#800026' :
+           d > 10000  ? '#BD0026' :
+           d > 5000  ? '#E31A1C' :
+           d > 2500  ? '#FC4E2A' :
+           d > 1000   ? '#FD8D3C' :
+						'#FEB24C' ;
+			}
+
+	function myStyle(feature) {
+    return {
+        fillColor: getColor(feature.properties.TOTAL_Jobs__2012),
+        weight: 0.75,
+        opacity: 1,
+        color: 'white',
+        fillOpacity: 0.7
+    };
+	}	
+
+
+	function highlightFeature(e) {
+	    var layer = e.target;
+
+	    layer.setStyle({
+	        weight: 5,
+	        color: '#666',
+	        dashArray: '',
+	        fillOpacity: 0.7
+	    });
+
+	    if (!L.Browser.ie && !L.Browser.opera) {
+	        layer.bringToFront();
+	    }
+	    info.update(layer.feature.properties);
+	}
+
+	function resetHighlight(e) {
+    	geojson.resetStyle(e.target);
+    	info.update();
+	}
+
+	var info = L.control();
+
+	info.onAdd = function (map) {
+	    this._div = L.DomUtil.create('div', 'info');
+	    this.update();
+	    return this._div;
+	};
+
+	info.update = function (props) {
+    this._div.innerHTML = '<h4>Total Jobs by Census Tract</h4>' +  (props ?
+        '<b>' + props.PLNG_REGIO + '</b><br />' + props.TOTAL_Jobs__2012 + ' Total Jobs in Census Tract'
+        : 'Hover over a neighborhood');
+	};
+
+	info.addTo(map);
+
+	function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+    });
+}
+
+    $.getJSON("http://arc.garc.opendata.arcgis.com/datasets/d217fbba93134689a8dd0bb0c196c3ba_169.geojson", function(data) {
+    geojson = L.geoJson(data, {
+        style: myStyle, onEachFeature: onEachFeature
+    }).addTo(map);
+});
 
 	</script>
 </body>
