@@ -1,0 +1,10 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+
+<script>
+$.ajax({
+  url: 'http://localhost:8080/otp/routers/default/isochrone?algorithm=accSampling&fromPlace=33.75,-84.5&toPlace=33.2,-84&mode=WALK,TRANSIT&cutoffSec=2000&optimize=QUICK&callback=?',
+  success: function(data){
+  	console.log(data)
+  }
+});
+</script>
