@@ -4,15 +4,9 @@
 	<link rel="stylesheet" href="leaflet-slider.css"/>
 	<script src='http://cdn.leafletjs.com/leaflet-0.6/leaflet.js' type='text/javascript'></script>
 
-    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
-
 	<script src="jquery-2.2.4.min.js"></script> 
 
 	<script src ="leaflet-slider.js"></script>
-
-
-
-
 
 	<style type="text/css">
 		html, body {height: 100%;overflow: hidden;}
@@ -30,6 +24,19 @@
 		    margin: 0 0 5px;
 		    color: #777;
 		}
+
+		.legend {
+	    line-height: 18px;
+	    color: #555;
+		}
+		.legend i {
+		    width: 18px;
+		    height: 18px;
+		    float: left;
+		    margin-right: 8px;
+		    opacity: 0.7;
+		}
+
 	</style>
 </head>
 <body>
@@ -50,31 +57,21 @@
 	
 	L.tileLayer('http://census.sparkgeo.com/{z}/{x}/{y}.png').addTo(map);
 
-    function getColor(d, e) {
-    return e > 30 ? '#E5E4E2' :
-    	   d > 20000 ? '#800026' :
-           d > 10000 ? '#BD0026' :
-           d > 5000 ? '#E31A1C' :
-           d > 2500 ? '#FC4E2A' :
-           d > 1000 ? '#FD8D3C' :
+    function getColor(jobs, pov, val) {
+    return pov > val ? '#DEDDDD' :
+    	   jobs > 20000 ? '#800026' :
+           jobs > 10000 ? '#BD0026' :
+           jobs > 5000 ? '#E31A1C' :
+           jobs > 2500 ? '#FC4E2A' :
+           jobs > 1000 ? '#FD8D3C' :
 					  '#FEB24C' ;
 			}
 
-	function getOpacity(e) {
-	return e < 30 ? 1 :
-					0 ;
+
+	function getOpacity(pov, val) {
+	return pov < val ? 0.7 :
+					   0 ;
 	}
-
-	function myStyle(feature) {
-    return {
-        fillColor: getColor(feature.properties.TOTAL_Jobs__2012,feature.properties.POV_IDX),
-        weight: 0.75,
-        opacity: getOpacity(feature.properties.POV_IDX),
-        color: 'white',
-        fillOpacity: getOpacity(feature.properties.POV_IDX)
-    };
-	}	
-
 
 	function highlightFeature(e) {
 	    var layer = e.target;
@@ -93,7 +90,7 @@
 	}
 
 	function resetHighlight(e) {
-    	geojson.resetStyle(e.target);
+    	dataLayer.resetStyle(e.target);
     	info.update();
 	}
 
@@ -107,7 +104,7 @@
 
 	info.update = function (props) {
     this._div.innerHTML = '<h4>Total Jobs by Census Tract</h4>' +  (props ?
-        '<b>' + props.PLNG_REGIO + '</b><br />' + props.TOTAL_Jobs__2012 + ' Total Jobs in Census Tract'
+        '<b>' + props.GEOID10 + '</b><br />' + props.TOTAL_Jobs__2012 + ' Total Jobs in Census Tract'
         : 'Hover over a neighborhood');
 	};
 
@@ -120,24 +117,58 @@
     });
 }
 
-    $.getJSON("povemployment.geojson", function(data) {
-    geojson = L.geoJson(data, {
-        style: myStyle, onEachFeature: onEachFeature
-    })
+	var dataLayer = L.geoJson('').addTo(map);
 
-    geojson.addTo(map);
+	slider = L.control.slider(function(value) {
+		//console.log(value);
 
-    slider = L.control.slider(function(value) {
-    	console.log(value);
-	}, {
-    max: 6,
-    value: 5,
-    step:0.1,
-    size: '250px',
-    orientation:'vertical',
-    id: 'slider'
-	}).addTo(map);
-});
+		//dataLayer.clearLayers();
+    	$.getJSON("povemployment.geojson", function(data) {
+    	dataLayer = L.geoJson(data, {
+        	style: myStyle, onEachFeature: onEachFeature
+    	}).addTo(map)});
+
+	function myStyle(feature) {
+    return {
+        fillColor: getColor(feature.properties.TOTAL_Jobs__2012,feature.properties.POV_IDX, value),
+        weight: 0.75,
+        opacity: getOpacity(feature.properties.POV_IDX,value),
+        color: 'white',
+        fillOpacity: getOpacity(feature.properties.POV_IDX,value)
+    };
+	};
+		}, {
+		size: '250px',
+        position: 'bottomleft',
+		min: 10,
+        max: 100,
+        step: 1,
+        id: "slider",
+        value: 10,
+        collapsed: true,
+        title: 'Leaflet Slider',
+        logo: 'Pov',
+        orientation: 'vertical'
+		}).addTo(map);
+
+	var legend = L.control({position: 'bottomright'});
+
+	legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = [0, 1000, 2500, 5000, 10000, 20000],
+        labels = [];
+
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+            grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+    }
+
+    return div;
+};
+
+legend.addTo(map);
 
 	</script>
 </body>
