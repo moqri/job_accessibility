@@ -24,7 +24,6 @@
 		    margin: 0 0 5px;
 		    color: #777;
 		}
-
 		.legend {
 	    line-height: 18px;
 	    color: #555;
@@ -36,7 +35,6 @@
 		    margin-right: 8px;
 		    opacity: 0.7;
 		}
-
 	</style>
 </head>
 <body>
@@ -46,17 +44,14 @@
 		center: [33.78, -84.39],
 		zoom: 9
 	});
-
 	map.options.maxZoom = 16;
 	map.options.minZoom = 9;
-
 	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 		attribution: '',
 		opacity:.4,
 	}).addTo(map);
 	
 	L.tileLayer('http://census.sparkgeo.com/{z}/{x}/{y}.png').addTo(map);
-
     function getColor(jobs, pov, val) {
     return pov > val ? '#DEDDDD' :
     	   jobs > 20000 ? '#800026' :
@@ -66,68 +61,61 @@
            jobs > 1000 ? '#FD8D3C' :
 					  '#FEB24C' ;
 			}
-
-
 	function getOpacity(pov, val) {
-	return pov < val ? 0.7 :
+	return pov <= val ? 0.7 :
 					   0 ;
 	}
-
 	function highlightFeature(e) {
 	    var layer = e.target;
-
 	    layer.setStyle({
 	        weight: 5,
 	        color: '#666',
 	        dashArray: '',
 	        fillOpacity: 0.7
 	    });
-
 	    if (!L.Browser.ie && !L.Browser.opera) {
 	        layer.bringToFront();
 	    }
 	    info.update(layer.feature.properties);
 	}
-
 	function resetHighlight(e) {
     	dataLayer.resetStyle(e.target);
     	info.update();
 	}
-
 	var info = L.control();
-
 	info.onAdd = function (map) {
 	    this._div = L.DomUtil.create('div', 'info');
 	    this.update();
 	    return this._div;
 	};
-
 	info.update = function (props) {
     this._div.innerHTML = '<h4>Total Jobs by Census Tract</h4>' +  (props ?
         '<b>' + props.GEOID10 + '</b><br />' + props.TOTAL_Jobs__2012 + ' Total Jobs in Census Tract'
         : 'Hover over a neighborhood');
 	};
-
 	info.addTo(map);
-
 	function onEachFeature(feature, layer) {
     layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight,
     });
 }
-
+	
 	var dataLayer = L.geoJson('').addTo(map);
-
+	
 	slider = L.control.slider(function(value) {
-		//console.log(value);
 
-		//dataLayer.clearLayers();
-    	$.getJSON("povemployment.geojson", function(data) {
-    	dataLayer = L.geoJson(data, {
-        	style: myStyle, onEachFeature: onEachFeature
-    	}).addTo(map)});
+		$.ajax({
+		dataType: "json",
+	  	url: 'povemployment.geojson',
+	  	success: function(data){
+			dataLayer.clearLayers();
+			dataLayer = L.geoJson(data,{style: myStyle, onEachFeature: onEachFeature}).addTo(map);
+			routesLayer.bringToFront(map);
+	  	}
+		});
 
+	
 	function myStyle(feature) {
     return {
         fillColor: getColor(feature.properties.TOTAL_Jobs__2012,feature.properties.POV_IDX, value),
@@ -138,11 +126,11 @@
     };
 	};
 		}, {
-		size: '250px',
+		size: '400px',
         position: 'bottomleft',
 		min: 10,
-        max: 100,
-        step: 1,
+        max: 95,
+        step: 5,
         id: "slider",
         value: 10,
         collapsed: true,
@@ -150,25 +138,35 @@
         logo: 'Pov',
         orientation: 'vertical'
 		}).addTo(map);
-
 	var legend = L.control({position: 'bottomright'});
-
 	legend.onAdd = function (map) {
-
     var div = L.DomUtil.create('div', 'info legend'),
         grades = [0, 1000, 2500, 5000, 10000, 20000],
         labels = [];
-
     for (var i = 0; i < grades.length; i++) {
         div.innerHTML +=
             '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
             grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
     }
-
     return div;
 };
-
 legend.addTo(map);
+
+	var myRouteStyle = {
+    "color": "#0000FF",
+    "weight": 1,
+    "opacity": 0.65
+	};
+
+	var routesLayer = L.geoJson('',{style: myRouteStyle,clickable:false}).addTo(map);
+	$.ajax({
+		dataType: "json",
+	  	url: '/graph/routes.geojson',
+	  	success: function(data){
+			routesLayer.addData(data);
+			routesLayer.bringToFront(map);
+	  	}
+	});
 
 	</script>
 </body>
