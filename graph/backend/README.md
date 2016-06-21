@@ -11,6 +11,6 @@ java -Xmx2G -jar otp-0.19.0-shaded.jar --build otp --inMemory
 
 The server runs on port 8080 on default. Browse to http://localhost:8080/ and enjoy!
 
-# Make it faster!
+## Make it faster!
 Build the graph only the first time and run load from the graph afterward. 
 More detail instructions coming soon!
