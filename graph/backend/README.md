@@ -7,6 +7,7 @@ Put your GTFS data under otp folder:
 example: otp/google_transit.zip
 
 Run the following Java command to build the graph in memory and run the server (it takes a few minutes to build the graph):
+
 java -Xmx2G -jar otp-0.19.0-shaded.jar --build otp --inMemory
 
 The server runs on port 8080 on default. Browse to http://localhost:8080/ and enjoy!
