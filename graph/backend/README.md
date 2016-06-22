@@ -16,7 +16,8 @@ The server runs on port 8080 on default. Browse to http://localhost:8080/ and en
 Build the graph only the first time and run load from the graph afterward. 
 Put your graph object under /otp/graphs/1 and run this:
 
-java -cp otp-0.19.0-shaded.jar:jython-standalone-2.7.0.jar org.opentripplanner.standale.OTPMain --graphs otp/graphs/ --router 1 --server
+java -cp otp-0.19.0-shaded.jar org.opentrippnner.standalone.OTPMain --graphs otp/graphs/ --router 1 --server
+
 
 More detail instructions coming soon!
 
