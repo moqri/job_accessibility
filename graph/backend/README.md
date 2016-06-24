@@ -18,5 +18,7 @@ Put your graph object under /otp/graphs/1 and run this:
 
 java -cp otp-0.19.0-shaded.jar org.opentripplanner.standalone.OTPMain --graphs otp/graphs/ --router 1 --server
 
+To see a full list of options, add --help to the end of the command.
+
 More detail instructions coming soon!
 
