@@ -1,5 +1,8 @@
 #Start up OTP (Graph Engine)
 ## Quick Start
+
+For user to be able to run the OTP tool, the steps mentioned below should be followed in the given order:
+
 Put your open-street-map data here under otp folder:
 example: otp/atlanta_georgia.osm.pbf
 
