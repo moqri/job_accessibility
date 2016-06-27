@@ -16,7 +16,8 @@ For user to be able to run the OTP tool, the steps mentioned below should be fol
 4) The server runs on port 8080 on default. Browse to http://localhost:8080/ and enjoy!
 
 ## Make it faster!
-Build the graph only the first time and run load from the graph afterward. 
+
+To do a quicker run of the tool, build the graph only the first time and run load from the graph afterward. 
 Put your graph object under /otp/graphs/1 and run this:
 
 java -cp otp-0.19.0-shaded.jar org.opentripplanner.standalone.OTPMain --graphs otp/graphs/ --router 1 --server
