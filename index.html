@@ -103,41 +103,8 @@
 	
 	var dataLayer = L.geoJson('').addTo(map);
 	
-	slider = L.control.slider(function(value) {
 
-		$.ajax({
-		dataType: "json",
-	  	url: 'povemployment.geojson',
-	  	success: function(data){
-			dataLayer.clearLayers();
-			dataLayer = L.geoJson(data,{style: myStyle, onEachFeature: onEachFeature}).addTo(map);
-			routesLayer.bringToFront(map);
-	  	}
-		});
 
-	
-	function myStyle(feature) {
-    return {
-        fillColor: getColor(feature.properties.TOTAL_Jobs__2012,feature.properties.POV_IDX, value),
-        weight: 0.75,
-        opacity: getOpacity(feature.properties.POV_IDX,value),
-        color: 'white',
-        fillOpacity: getOpacity(feature.properties.POV_IDX,value)
-    };
-	};
-		}, {
-		size: '400px',
-        position: 'bottomleft',
-		min: 10,
-        max: 95,
-        step: 5,
-        id: "slider",
-        value: 10,
-        collapsed: true,
-        title: 'Leaflet Slider',
-        logo: 'Pov',
-        orientation: 'vertical'
-		}).addTo(map);
 	var legend = L.control({position: 'bottomright'});
 	legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend'),
