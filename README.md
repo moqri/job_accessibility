@@ -20,7 +20,7 @@ For user to be able to run the OTP tool, the steps mentioned below should be fol
 To do a quicker run of the tool, build the graph only the first time and run load from the graph afterward. 
 Put your graph object under backend/otp/graphs/1 and run this:
 
-java -cp otp-0.19.0-shaded.jar org.opentripplanner.standalone.OTPMain --graphs otp/graphs/ --router 1 --server
+java -cp otp-0.19.0-shaded.jar org.opentripplanner.standalone.OTPMain --graphs otp/graphs/ --router 1 --server --analyst
 
 To see a full list of options, add --help to the end of the command.
 
