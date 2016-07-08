@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>atl jobs</title>
+    <link rel='stylesheet' href='http://cdn.leafletjs.com/leaflet-0.6/leaflet.css' />
+	<link rel="stylesheet" href="leaflet-slider.css"/>
+	<script src='http://cdn.leafletjs.com/leaflet-0.6/leaflet.js' type='text/javascript'></script>
+
+	<script src="jquery-2.2.4.min.js"></script> 
+
+	<style type="text/css">
+		html, body {height: 100%;overflow: hidden;}
+		#map {height: 100%;}
+	</style>
+  </head>
+  <body>
+
+  	<div id="map"></div>
+	<script>
+
+	var map = new L.Map('map', {
+		center: [33.78, -84.39],
+		zoom: 12
+	});
+	map.options.maxZoom = 22;
+	map.options.minZoom = 11;
+
+	var backgroundLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqckx1xt000ybzmas8ge1666/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(map);
+
+	var lowLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqcqeiv5000xc5kn8sg8m8zr/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(map);
+
+	var midLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqduno7h0004ctnihlx6bqop/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(map);
+
+	var highLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqcqiatc000yc5knae23x2ol/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(map);
+
+	var baseLayer = {
+		"income levels": backgroundLayer
+	};	
+
+	var overlayLayer = {
+		"high": highLayer,
+		"mid": midLayer,
+		"low": lowLayer
+	};
+
+	L.control.layers(baseLayer, overlayLayer).addTo(map);
+
+	streetLayer.bringToFront();
+
+	</script>
+
+
+  
+  </body>
+</html>
