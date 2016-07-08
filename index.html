@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Accessibility</title>
+    <title>Atlanta Access to Jobs</title>
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -22,12 +22,15 @@
 
     <div class="container">
       <div class="starter-template">
-        <h1>Atlanta Accessibility</h1>
-        <h4 >Time: 30 Minutes</h4>
+        <h1>Atlanta Access to Jobs</h1>
        	<form name="modeForm">
-        <h4 >Mode:
+        <h4 >Mode of Tavel:</h4>
 		    <input type="radio" name="mode" value="WALK" checked> Walk
 		    <input type="radio" name="mode" value="WALK,TRANSIT"> Public Transit
+        <h4 >Max Travel Time:</h4>
+		    <input type="radio" name="max" value="1800" checked> 30 Minutes
+		    <input type="radio" name="max" value="2700"> 45 Minutes
+		    <input type="radio" name="max" value="3600"> 60 Minutes
 		</form>
 		</h4>
       </div>
@@ -36,17 +39,17 @@
 
 	<div id="mapid" style="width: 1000px; height: 600px"></div>
 	<script>
-
 		var myStyle = {
 		    "color": "green",
 		    "weight": 1,
 		    "opacity": 0.65
 		};
 
-		var walkStyle = {
+		var icochroneStyle = {
 	    "color": "blue",
 	    "weight": 1,
-	    "opacity": 0.65
+	    "opacity": 0.65,
+	    "clickable":false,
 	};
 		var mymap = L.map('mapid').setView([33.75, -84.4], 12);
 		var clickedPoint;
@@ -57,7 +60,7 @@
 			id: 'mapbox.streets'
 		}).addTo(mymap);
 
-
+		/*
 		var routesLayer = L.geoJson('',{style: function(feature) {
 		        switch (feature.properties.type) {
 		            case 'BUS_LOCAL': return {color: "purple","weight": 1,
@@ -65,10 +68,8 @@
 		            case 'URBANRAIL_METRO':   return {color: "red","weight": 2,
 		    "opacity": 0.65};
 		        }
-		    }
+		    },clickable:false}).addTo(mymap);
 
-			,clickable:false}).addTo(mymap);
-		/*
 		$.ajax({
 			dataType: "json",
 		  	url: '/routes.geojson',
@@ -78,30 +79,63 @@
 		});
 		*/
 
-		var walkLayer = L.geoJson('',{style: walkStyle},{clickable:false}).addTo(mymap);
+
+		var isochrone = L.geoJson('',{style: icochroneStyle}).addTo(mymap);
+
+function setClickable(target, value) {
+    if(value && !target.options.clickable) {
+        target.options.clickable = true;
+        L.Path.prototype._initEvents.call(target);
+        target._path.removeAttribute('pointer-events');
+    } else if(!value && target.options.clickable) {
+        target.options.clickable = false;
+
+        // undoing actions done in L.Path.prototype._initEvents
+        L.DomUtil.removeClass(target._path, 'leaflet-clickable');
+        L.DomEvent.off(target._container, 'click', target._onMouseClick);
+        ['dblclick', 'mousedown', 'mouseover', 'mouseout', 'mousemove', 'contextmenu'].forEach(function(evt) {
+            L.DomEvent.off(target._container, evt, target._fireMouseEvent);
+        });
+
+        target._path.setAttribute('pointer-events', target.options.pointerEvents || 'none');
+    }
+}
+setClickable(isochrone, false);
+
 		function onMapClick(e) {
 			clickedPoint=e;
+			//var domain='http://173.236.250.249:80'
+			var domain='http://localhost:8080'
 			var mode= document.querySelector('input[name="mode"]:checked').value;
-			walkLayer.clearLayers();	
-
+			var max= document.querySelector('input[name="max"]:checked').value;
+			isochrone.clearLayers();	
 			$.ajax({
-			  url: 'http://localhost:8080/otp/routers/default/isochrone?algorithm=accSampling&fromPlace='+e.latlng.lat.toString()
-				  +','+
-				  e.latlng.lng.toString()
-				  +'&toPlace=33.2,-84&mode='+
-				  mode
-				  +'&cutoffSec=1800&optimize=QUICK&callback=?',
+			  url: domain+'/otp/routers/default/isochrone?algorithm=accSampling&fromPlace='+
+			  	e.latlng.lat.toString()+','+e.latlng.lng.toString()
+				  +'&mode='+mode
+				  +'&cutoffSec='+max
+				  +'&optimize=QUICK&callback=?',
 			  success: function(data){
-				walkLayer.addData(data);
+				isochrone.addData(data);
 			  }
 			});
 		}
 		mymap.on('click', onMapClick);
 
-var rad = document.modeForm.mode;
+var rad_mode = document.modeForm.mode;
 var prev = null;
-for(var i = 0; i < rad.length; i++) {
-    rad[i].onclick = function() {
+for(var i = 0; i < rad_mode.length; i++) {
+    rad_mode[i].onclick = function() {
+        if(this !== prev) {
+			onMapClick(clickedPoint)
+        }
+        console.log(this.value)
+    };
+}
+var rad_max = document.modeForm.max;
+var prev = null;
+for(var i = 0; i < rad_max.length; i++) {
+    rad_max[i].onclick = function() {
         if(this !== prev) {
 			onMapClick(clickedPoint)
         }
