@@ -27,7 +27,7 @@
 		<hr>
     	<div class="row">
 		  	<div class="col-md-10">
-	        	<div id="map_div" style="width: 900px; height: 600px"></div>
+	        	<div id="map_div" style="width: 950px; height: 600px"></div>
 	  		</div>
 		  	<div class="col-md-2">
 		  		<form name="modeForm">
@@ -118,15 +118,19 @@
 
 		var isochrone = L.geoJson('',{style: icochroneStyle}).addTo(jobmap);
 		var isochrone_center;
+
 		function onMapClick(e) {
+			if (isochrone_center){
+				jobmap.removeLayer(isochrone_center);
+			}
+
 			clickedPoint=e;
-			var domain='http://173.236.250.249:8080'
+			var domain='http://173.236.250.249:8080';
 			//var domain='http://localhost:8080'
 			var mode= document.querySelector('input[name="mode"]:checked').value;
 			var max= document.querySelector('input[name="max"]:checked').value;
 			isochrone.clearLayers();
 			isochrone_center = L.marker([e.latlng.lat, e.latlng.lng]);
-			isochrone_center.clearLayers();
 			jobmap.addLayer(isochrone_center);
 			$.ajax({
 			  url: domain+'/otp/routers/default/isochrone?algorithm=accSampling&fromPlace='+
