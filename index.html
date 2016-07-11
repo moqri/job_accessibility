@@ -10,7 +10,9 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- leaflet-->
     <link rel='stylesheet' href='http://cdn.leafletjs.com/leaflet-0.6/leaflet.css' />
+    <style>
 
+	</style>
   </head>
   <body>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -20,24 +22,37 @@
 
 	<script src="js/leaflet.js"></script>
 
-    <div class="container">
-      <div class="starter-template">
-        <h1>Atlanta Access to Jobs</h1>
-       	<form name="modeForm">
-        <h4 >Mode of Tavel:</h4>
-		    <input type="radio" name="mode" value="WALK" > Walk
-		    <input type="radio" name="mode" value="WALK,TRANSIT" checked> Public Transit
-        <h4 >Max Travel Time:</h4>
-		    <input type="radio" name="max" value="1800" checked> 30 Minutes
-		    <input type="radio" name="max" value="2700"> 45 Minutes
-		    <input type="radio" name="max" value="3600"> 60 Minutes
-		</form>
-		</h4>
-      </div>
-<br>
-
-
-	<div id="map_div" style="width: 1000px; height: 600px"></div>
+	<div class="container">
+    	<h1>Atlanta Access to Jobs</h1>
+		<hr>
+    	<div class="row">
+		  	<div class="col-md-10">
+	        	<div id="map_div" style="width: 900px; height: 600px"></div>
+	  		</div>
+		  	<div class="col-md-2">
+		  		<form name="modeForm">
+				        <p>
+				        <h4 >Mode of Tavel:</h4>
+					    &nbsp&nbsp<input type="radio" name="mode" value="WALK" id= "walk_radio"/>
+					    <label for="walk_radio"> Walk</label><br>
+					    &nbsp&nbsp<input type="radio" name="mode" value="WALK,TRANSIT" checked id= "public_radio"/> 
+					    <label for="walk_radio"> Public Transit</label>
+					    <br><br>
+					    </p>
+					    <p>
+				        <h4 >Max Travel Time:</h4>
+					    &nbsp&nbsp<input type="radio" name="max" value="1800" checked id="max_30"/> 
+					    <label for="max_30"> 30 Minutes </label><br>
+					    &nbsp&nbsp<input type="radio" name="max" value="2700" id="max_45"/> 
+					    <label for="max_45"> 45 Minutes</label>	<br>	    
+					    &nbsp&nbsp<input type="radio" name="max" value="3600" id="max_60"/>
+					    <label for="max_60"> 60 Minutes</label>
+					    </p>
+				</form>
+			</div>
+		</div>
+	</div>
+	<br>
 	<script>
 		var myStyle = {
 		    "color": "green",
