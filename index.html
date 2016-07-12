@@ -81,13 +81,13 @@
 		var streetLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqckx1xt000ybzmas8ge1666/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
 
 		var baseLayer = {
-			"income levels": backgroundLayer
+			"Income per Month": backgroundLayer
 		};	
 
 		var overlayLayer = {
-			"1-low (red)": lowLayer,
-			"2-mid (green)": midLayer,
-			"3-high (yellow)": highLayer
+			"<span style='color:red'>$1250 or Less</span>": lowLayer,
+			"<span style='color:green'>$1251 to $3333</span>": midLayer,
+			"<span style='color:blue'>$3334 or Greater</span>": highLayer
 		};
 
 	L.control.layers(baseLayer, overlayLayer).addTo(jobmap);
