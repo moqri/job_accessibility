@@ -9,7 +9,12 @@
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- leaflet-->
-    <link rel='stylesheet' href='http://cdn.leafletjs.com/leaflet-0.6/leaflet.css' />
+    <link rel='stylesheet' href='http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css' />
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<script src="L.GeoSearch/src/js/l.control.geosearch.js"></script>
+	<script src="L.GeoSearch/src/js/l.geosearch.provider.google.js"></script>
+	<link rel="stylesheet" href="L.GeoSearch/src/css/l.geosearch.css" />
+
     <style>
 
 	</style>
@@ -20,7 +25,7 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
 
-	<script src="js/leaflet.js"></script>
+
 
 	<div class="container">
     	<h1>Atlanta Access to Jobs</h1>
@@ -33,9 +38,9 @@
 		  		<form name="modeForm">
 				        <p>
 				        <h4 >Mode of Tavel:</h4>
-					    &nbsp&nbsp<input type="radio" name="mode" value="WALK" id= "walk_radio"/>
+					    &nbsp&nbsp<input type="radio" name="mode" value="WALK" checked id= "walk_radio"/>
 					    <label for="walk_radio"> Walk</label><br>
-					    &nbsp&nbsp<input type="radio" name="mode" value="WALK,TRANSIT" checked id= "public_radio"/> 
+					    &nbsp&nbsp<input type="radio" name="mode" value="WALK,TRANSIT" id= "public_radio"/> 
 					    <label for="walk_radio"> Public Transit</label>
 					    <br><br>
 					    </p>
@@ -53,7 +58,7 @@
 		</div>
 	</div>
 	<br>
-	<script>
+	<script type="text/javascript">
 		var myStyle = {
 		    "color": "green",
 		    "weight": 1,
@@ -70,7 +75,8 @@
 		var jobmap = new L.Map('map_div', {center: [33.78, -84.39],zoom: 12});
 		jobmap.options.maxZoom = 22;
 		jobmap.options.minZoom = 12;
-		var backgroundLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqckx1xt000ybzmas8ge1666/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
+
+		var backgroundLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqjs3mbs000ibknmkf910tlp/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
 
 		var lowLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqcqeiv5000xc5kn8sg8m8zr/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
 
@@ -85,9 +91,9 @@
 		};	
 
 		var overlayLayer = {
-			"<span style='color:red'>$1250 or Less</span>": lowLayer,
-			"<span style='color:green'>$1251 to $3333</span>": midLayer,
-			"<span style='color:blue'>$3334 or Greater</span>": highLayer
+			"<span style='color:#bc2020'>$1250 or Less</span>": lowLayer,
+			"<span style='color:#2db92f'>$1251 to $3333</span>": midLayer,
+			"<span style='color:#1624e3'>$3334 or Greater</span>": highLayer
 		};
 
 	L.control.layers(baseLayer, overlayLayer).addTo(jobmap);
@@ -95,26 +101,7 @@
 	streetLayer.bringToFront();
 
 		var clickedPoint;
-
-		/*
-		var routesLayer = L.geoJson('',{style: function(feature) {
-		        switch (feature.properties.type) {
-		            case 'BUS_LOCAL': return {color: "purple","weight": 1,
-		    "opacity": 0.65};
-		            case 'URBANRAIL_METRO':   return {color: "red","weight": 2,
-		    "opacity": 0.65};
-		        }
-		    },clickable:false}).addTo(mymap);
-
-		$.ajax({
-			dataType: "json",
-		  	url: '/routes.geojson',
-		  	success: function(data){
-				routesLayer.addData(data);
-		  	}
-		});
-		*/
-
+		var coordinates;
 
 		var isochrone = L.geoJson('',{style: icochroneStyle}).addTo(jobmap);
 		var isochrone_center;
@@ -124,17 +111,25 @@
 				jobmap.removeLayer(isochrone_center);
 			}
 
+			try {
+				coordinates = [e.latlng.lat, e.latlng.lng];
+			}
+			catch(err) {
+				coordinates = [e[0].Y, e[0].X];
+			}
+
 			clickedPoint=e;
 			var domain='http://173.236.250.249:8080';
 			//var domain='http://localhost:8080'
 			var mode= document.querySelector('input[name="mode"]:checked').value;
 			var max= document.querySelector('input[name="max"]:checked').value;
 			isochrone.clearLayers();
-			isochrone_center = L.marker([e.latlng.lat, e.latlng.lng]);
+			isochrone_center = L.marker(coordinates);
 			jobmap.addLayer(isochrone_center);
+			console.log(coordinates);
 			$.ajax({
 			  url: domain+'/otp/routers/default/isochrone?algorithm=accSampling&fromPlace='+
-			  	e.latlng.lat.toString()+','+e.latlng.lng.toString()
+			  	coordinates[0].toString()+','+coordinates[1].toString()
 				  +'&mode='+mode
 				  +'&cutoffSec='+max
 				  +'&optimize=QUICK&callback=?',
@@ -150,7 +145,7 @@ var prev = null;
 for(var i = 0; i < rad_mode.length; i++) {
     rad_mode[i].onclick = function() {
         if(this !== prev) {
-			onMapClick(clickedPoint)
+				onMapClick(clickedPoint);
         }
         console.log(this.value)
     };
@@ -160,12 +155,17 @@ var prev = null;
 for(var i = 0; i < rad_max.length; i++) {
     rad_max[i].onclick = function() {
         if(this !== prev) {
-			onMapClick(clickedPoint)
+				onMapClick(clickedPoint);
         }
         console.log(this.value)
     };
 }
+		var googleProvider = new L.GeoSearch.Provider.Google();
 
+		new L.Control.GeoSearch({
+        	provider: googleProvider,
+        	retainZoomLevel: true,
+    	}).addTo(jobmap);
 
 </script>
 </div><!-- /.container -->
