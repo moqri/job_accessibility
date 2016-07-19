@@ -136,7 +136,9 @@
 			  success: function(data){
 				isochrone.addData(data);
 			  }
-			});
+			})
+			jobmap.setView(coordinates);
+			;
 		}
 		jobmap.on('click', onMapClick);
 
