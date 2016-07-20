@@ -25,8 +25,6 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
 
-
-
 	<div class="container">
     	<h1>Atlanta Access to Jobs</h1>
 		<hr>
@@ -59,31 +57,36 @@
 	</div>
 	<br>
 	<script type="text/javascript">
+		
 		var myStyle = {
 		    "color": "green",
 		    "weight": 1,
 		    "opacity": 0.65
 		};
 
-		var icochroneStyle = {
+		var isochroneStyle = {
 	    "color": "orange",
 	    "weight": 1,
 	    "opacity": 0.65,
 	    "clickable":false,
-	};
-		//var mymap = L.map('mapid').setView([33.75, -84.4], 12);
+		};
+
+		//create the map
 		var jobmap = new L.Map('map_div', {center: [33.78, -84.39],zoom: 12});
 		jobmap.options.maxZoom = 22;
 		jobmap.options.minZoom = 12;
 
+		//white background
 		var backgroundLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqjs3mbs000ibknmkf910tlp/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
 
+		//data layers
 		var lowLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqcqeiv5000xc5kn8sg8m8zr/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
 
 		var midLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqduno7h0004ctnihlx6bqop/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
 
 		var highLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqcqiatc000yc5knae23x2ol/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
 
+		//streets and place names
 		var streetLayer = L.tileLayer('https://api.mapbox.com/styles/v1/dssgatlanta2016/ciqckx1xt000ybzmas8ge1666/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZHNzZ2F0bGFudGEyMDE2IiwiYSI6ImNpcHlmOGFnYTB5ZDJmdG0yaHlzdDhqbHkifQ.w8lrSNSuRYyyWu69bLZ5Yg').addTo(jobmap);
 
 		var baseLayer = {
@@ -96,37 +99,44 @@
 			"<span style='color:#1624e3'>$3334 or Greater</span>": highLayer
 		};
 
-	L.control.layers(baseLayer, overlayLayer).addTo(jobmap);
+		//layer controller
+		L.control.layers(baseLayer, overlayLayer).addTo(jobmap);
 
-	streetLayer.bringToFront();
+		streetLayer.bringToFront();
 
 		var clickedPoint;
 		var coordinates;
-
-		var isochrone = L.geoJson('',{style: icochroneStyle}).addTo(jobmap);
 		var isochrone_center;
 
+		var isochrone = L.geoJson('',{style: isochroneStyle}).addTo(jobmap);
+
+		//handle clicks and searches
 		function onMapClick(e) {
 			if (isochrone_center){
 				jobmap.removeLayer(isochrone_center);
 			}
 
+			//coordinate format of click
 			try {
 				coordinates = [e.latlng.lat, e.latlng.lng];
 			}
+			//coordinate format of search
 			catch(err) {
 				coordinates = [e[0].Y, e[0].X];
 			}
 
-			clickedPoint=e;
-			var domain='http://173.236.250.249:8080';
-			//var domain='http://localhost:8080'
-			var mode= document.querySelector('input[name="mode"]:checked').value;
-			var max= document.querySelector('input[name="max"]:checked').value;
+			clickedPoint = e;
+			var domain = 'http://173.236.250.249:8080';
+			var mode = document.querySelector('input[name="mode"]:checked').value;
+			var max = document.querySelector('input[name="max"]:checked').value;
+			
+			//remove previous isochrone
 			isochrone.clearLayers();
+
 			isochrone_center = L.marker(coordinates);
 			jobmap.addLayer(isochrone_center);
-			console.log(coordinates);
+			
+			//load isochrone data
 			$.ajax({
 			  url: domain+'/otp/routers/default/isochrone?algorithm=accSampling&fromPlace='+
 			  	coordinates[0].toString()+','+coordinates[1].toString()
@@ -142,35 +152,38 @@
 		}
 		jobmap.on('click', onMapClick);
 
-var rad_mode = document.modeForm.mode;
-var prev = null;
-for(var i = 0; i < rad_mode.length; i++) {
-    rad_mode[i].onclick = function() {
-        if(this !== prev) {
-				onMapClick(clickedPoint);
-        }
-        console.log(this.value)
-    };
-}
-var rad_max = document.modeForm.max;
-var prev = null;
-for(var i = 0; i < rad_max.length; i++) {
-    rad_max[i].onclick = function() {
-        if(this !== prev) {
-				onMapClick(clickedPoint);
-        }
-        console.log(this.value)
-    };
-}
-		var googleProvider = new L.GeoSearch.Provider.Google();
+		//handle changes in transport mode
+		var rad_mode = document.modeForm.mode;
+		var prev = null;
+		for(var i = 0; i < rad_mode.length; i++) {
+		    rad_mode[i].onclick = function() {
+		        if(this !== prev) {
+						onMapClick(clickedPoint);
+		        }
+		        console.log(this.value)
+		    };
+		}
 
-		new L.Control.GeoSearch({
-        	provider: googleProvider,
-        	retainZoomLevel: true,
-    	}).addTo(jobmap);
+		//handle changes in max time mode
+		var rad_max = document.modeForm.max;
+		var prev = null;
+		for(var i = 0; i < rad_max.length; i++) {
+		    rad_max[i].onclick = function() {
+		        if(this !== prev) {
+						onMapClick(clickedPoint);
+		        }
+		        console.log(this.value)
+		    };
+		}
+				var googleProvider = new L.GeoSearch.Provider.Google();
 
-</script>
-</div><!-- /.container -->
+				new L.Control.GeoSearch({
+		        	provider: googleProvider,
+		        	retainZoomLevel: true,
+		    	}).addTo(jobmap);
+
+	</script>
+	</div><!-- /.container -->
 
   </body>
 </html>
